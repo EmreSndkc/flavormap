@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Ana Sayfa - FlavorMap{% endblock %}
+
+{% block content %}
+
+<h1>Hos Geldiniz!</h1>
+<p>Sehirdeki en iyi restoranları buradan kesfedebilirsiniz.</p>
+
+<a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-warning">Restoranları Goster</a>
+
+<hr>
+
+<h2>Kategoriler</h2>
+{% if categories %}
+    {% for category in categories %}
+        <a href="{% url 'restaurants:restaurant_list' %}?category={{ category.id }}" class="btn btn-outline-secondary btn-sm">{{ category.name }}</a>
+    {% endfor %}
+{% else %}
+    <p>Henuz kategori eklenmemis.</p>
+{% endif %}
+
+<hr>
+
+<h2>One Cikan Restoranlar</h2>
+{% if featured_restaurants %}
+    <div class="row">
+        {% for restaurant in featured_restaurants %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ restaurant.name }}</h5>
+                    <p class="card-text">{{ restaurant.description }}</p>
+                    <p><strong>Adres:</strong> {{ restaurant.address }}</p>
+                    <p><strong>Fiyat:</strong> {{ restaurant.price_range }}</p>
+                    {% if restaurant.average_rating %}
+                        <p><strong>Puan:</strong> {{ restaurant.average_rating }} / 5</p>
+                    {% else %}
+                        <p>Henuz puan verilmemis.</p>
+                    {% endif %}
+                    <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Henuz restoran eklenmemis.</p>
+{% endif %}
+
+{% endblock %}

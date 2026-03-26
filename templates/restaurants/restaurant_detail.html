@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ restaurant.name }} - FlavorMap{% endblock %}
+
+{% block content %}
+
+<h1>{{ restaurant.name }}</h1>
+<p>{{ restaurant.description }}</p>
+<p><strong>Adres:</strong> {{ restaurant.address }}</p>
+<p><strong>Telefon:</strong> {{ restaurant.phone }}</p>
+<p><strong>Fiyat Araligi:</strong> {{ restaurant.price_range }}</p>
+{% if restaurant.category %}
+    <p><strong>Kategori:</strong> {{ restaurant.category.name }}</p>
+{% endif %}
+{% if restaurant.average_rating %}
+    <p><strong>Ortalama Puan:</strong> {{ restaurant.average_rating }} / 5</p>
+{% else %}
+    <p>Henuz degerlendirme yapilmamis.</p>
+{% endif %}
+
+<hr>
+
+<h2>Menu</h2>
+{% if menu_items %}
+    <ul>
+        {% for item in menu_items %}
+            <li>{{ item.name }} - {{ item.price }} TL</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Henuz menu eklenmemis.</p>
+{% endif %}
+
+<hr>
+
+<h2>Yorumlar</h2>
+{% if reviews %}
+    {% for review in reviews %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <p><strong>Puan:</strong> {{ review.stars }} / 5</p>
+                <p>{{ review.comment }}</p>
+                <small class="text-muted">{{ review.date }}</small>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Henuz yorum yapilmamis.</p>
+{% endif %}
+
+<br>
+<a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-secondary">Geri Don</a>
+
+{% endblock %}

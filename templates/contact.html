@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Iletisim - FlavorMap{% endblock %}
+
+{% block content %}
+
+<h1>Iletisim</h1>
+<p>Bizimle iletisime gecmek icin asagidaki formu doldurabilirsiniz.</p>
+
+<form>
+    {% csrf_token %}
+    <div class="mb-3">
+        <label>Ad Soyad</label>
+        <input type="text" class="form-control" placeholder="Adinizi girin">
+    </div>
+    <div class="mb-3">
+        <label>E-posta</label>
+        <input type="email" class="form-control" placeholder="E-posta adresinizi girin">
+    </div>
+    <div class="mb-3">
+        <label>Mesaj</label>
+        <textarea class="form-control" rows="4" placeholder="Mesajinizi yazin"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Gonder</button>
+</form>
+
+{% endblock %}
