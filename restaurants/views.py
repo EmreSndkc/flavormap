@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from .models import Restaurant, Category
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, RestaurantForm
 
 
 def home(request):
@@ -70,3 +71,16 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
+@login_required
+def restaurant_create(request):
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST)
+        if form.is_valid():
+            restaurant = form.save(commit=False)
+            restaurant.creator = request.user
+            restaurant.save()
+            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+    else:
+        form = RestaurantForm()
+    return render(request, 'restaurants/restaurant_form.html', {'form': form})
