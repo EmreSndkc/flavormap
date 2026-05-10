@@ -9,6 +9,8 @@ urlpatterns = [
     path('restoranlar/', views.restaurant_list, name='restaurant_list'),
     path('restoranlar/yeni/', views.restaurant_create, name='restaurant_create'),
     path('restoranlar/<int:pk>/', views.restaurant_detail, name='restaurant_detail'),
+    path('restoranlar/<int:pk>/duzenle/', views.restaurant_update, name='restaurant_update'),
+    path('restoranlar/<int:pk>/sil/', views.restaurant_delete, name='restaurant_delete'),
     path('hakkinda/', views.about, name='about'),
     path('iletisim/', views.contact, name='contact'),
     

@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseForbidden
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from .models import Restaurant, Category
@@ -84,3 +85,31 @@ def restaurant_create(request):
     else:
         form = RestaurantForm()
     return render(request, 'restaurants/restaurant_form.html', {'form': form})
+
+@login_required
+def restaurant_update(request, pk):
+    restaurant = get_object_or_404(Restaurant, pk=pk)
+    if restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu restoranı düzenleme yetkiniz yok.")
+    
+    if request.method == 'POST':
+        form = RestaurantForm(request.POST, instance=restaurant)
+        if form.is_valid():
+            form.save()
+            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+    else:
+        form = RestaurantForm(instance=restaurant)
+    
+    return render(request, 'restaurants/restaurant_form.html', {'form': form, 'is_update': True})
+
+@login_required
+def restaurant_delete(request, pk):
+    restaurant = get_object_or_404(Restaurant, pk=pk)
+    if restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu restoranı silme yetkiniz yok.")
+        
+    if request.method == 'POST':
+        restaurant.delete()
+        return redirect('restaurants:restaurant_list')
+        
+    return render(request, 'restaurants/restaurant_confirm_delete.html', {'restaurant': restaurant})

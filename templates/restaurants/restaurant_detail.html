@@ -4,7 +4,15 @@
 
 {% block content %}
 
-<h1>{{ restaurant.name }}</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">{{ restaurant.name }}</h1>
+    {% if user.is_authenticated and user == restaurant.creator %}
+        <div>
+            <a href="{% url 'restaurants:restaurant_update' restaurant.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+            <a href="{% url 'restaurants:restaurant_delete' restaurant.pk %}" class="btn btn-danger btn-sm">Sil</a>
+        </div>
+    {% endif %}
+</div>
 <p>{{ restaurant.description }}</p>
 <p><strong>Adres:</strong> {{ restaurant.address }}</p>
 <p><strong>Telefon:</strong> {{ restaurant.phone }}</p>

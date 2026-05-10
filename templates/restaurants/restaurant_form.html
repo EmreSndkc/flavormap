@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Restoran Ekle - FlavorMap{% endblock %}
+{% block title %}
+    {% if is_update %}Restoranı Düzenle{% else %}Restoran Ekle{% endif %} - FlavorMap
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card mt-4">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">Yeni Restoran Ekle</h3>
-                <a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-sm btn-light">İptal</a>
+                <h3 class="mb-0">
+                    {% if is_update %}Restoranı Düzenle{% else %}Yeni Restoran Ekle{% endif %}
+                </h3>
+                <a href="{% if is_update %}{% url 'restaurants:restaurant_detail' form.instance.pk %}{% else %}{% url 'restaurants:restaurant_list' %}{% endif %}" class="btn btn-sm btn-light">İptal</a>
             </div>
             <div class="card-body">
                 <form method="post">
