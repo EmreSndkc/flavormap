@@ -1,5 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login
 from .models import Restaurant, Category
+from .forms import UserRegisterForm
 
 
 def home(request):
@@ -56,3 +58,15 @@ def about(request):
 
 def contact(request):
     return render(request, 'contact.html')
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('restaurants:home')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'registration/register.html', {'form': form})
