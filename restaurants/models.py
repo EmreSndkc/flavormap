@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -37,6 +38,14 @@ class Restaurant(models.Model):
         blank=True,
         related_name='restaurants',
         verbose_name='Kategori',
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_restaurants',
+        verbose_name='Oluşturan',
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -81,6 +90,14 @@ class Review(models.Model):
     )
     comment = models.TextField(verbose_name='Yorum')
     date = models.DateField(auto_now_add=True, verbose_name='Tarih')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Kullanıcı',
+        null=True,
+        blank=True,
+    )
     restaurant = models.ForeignKey(
         Restaurant,
         on_delete=models.CASCADE,
