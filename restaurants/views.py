@@ -23,6 +23,7 @@ def restaurant_list(request):
     category_id = request.GET.get('category')
     price_range = request.GET.get('price')
     search_query = request.GET.get('q')
+    location_query = request.GET.get('location')
 
     if category_id:
         restaurants = restaurants.filter(category_id=category_id)
@@ -30,6 +31,8 @@ def restaurant_list(request):
         restaurants = restaurants.filter(price_range=price_range)
     if search_query:
         restaurants = restaurants.filter(name__icontains=search_query)
+    if location_query:
+        restaurants = restaurants.filter(address__icontains=location_query)
 
     context = {
         'restaurants': restaurants,
@@ -37,6 +40,7 @@ def restaurant_list(request):
         'selected_category': category_id,
         'selected_price': price_range,
         'search_query': search_query,
+        'location_query': location_query,
     }
     return render(request, 'restaurants/restaurant_list.html', context)
 
