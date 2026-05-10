@@ -11,6 +11,11 @@ urlpatterns = [
     path('restoranlar/<int:pk>/', views.restaurant_detail, name='restaurant_detail'),
     path('restoranlar/<int:pk>/duzenle/', views.restaurant_update, name='restaurant_update'),
     path('restoranlar/<int:pk>/sil/', views.restaurant_delete, name='restaurant_delete'),
+    
+    # Review URLs
+    path('yorumlar/<int:pk>/duzenle/', views.review_update, name='review_update'),
+    path('yorumlar/<int:pk>/sil/', views.review_delete, name='review_delete'),
+    
     path('hakkinda/', views.about, name='about'),
     path('iletisim/', views.contact, name='contact'),
     

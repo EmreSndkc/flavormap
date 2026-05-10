@@ -42,12 +42,38 @@
 <hr>
 
 <h2>Yorumlar</h2>
+
+{% if user.is_authenticated and not user_has_reviewed %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Yorum Yap</h5>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary btn-sm">Gönder</button>
+            </form>
+        </div>
+    </div>
+{% elif user.is_authenticated %}
+    <p class="text-success">Bu restorana zaten yorum yaptınız.</p>
+{% else %}
+    <p><a href="{% url 'restaurants:login' %}">Yorum yapmak için giriş yapın.</a></p>
+{% endif %}
+
 {% if reviews %}
     {% for review in reviews %}
         <div class="card mb-2">
             <div class="card-body">
-                <p><strong>Puan:</strong> {{ review.stars }} / 5</p>
-                <p>{{ review.comment }}</p>
+                <div class="d-flex justify-content-between">
+                    <p class="mb-1"><strong>{{ review.user.username|default:"Anonim" }}</strong> - Puan: {{ review.stars }} / 5</p>
+                    {% if user.is_authenticated and user == review.user %}
+                        <div>
+                            <a href="{% url 'restaurants:review_update' review.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+                            <a href="{% url 'restaurants:review_delete' review.pk %}" class="btn btn-danger btn-sm">Sil</a>
+                        </div>
+                    {% endif %}
+                </div>
+                <p class="mb-1">{{ review.comment }}</p>
                 <small class="text-muted">{{ review.date }}</small>
             </div>
         </div>

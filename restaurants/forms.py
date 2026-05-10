@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Restaurant
+from .models import Restaurant, Review
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(label='E-posta')
@@ -21,4 +21,13 @@ class RestaurantForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'price_range': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['stars', 'comment']
+        widgets = {
+            'stars': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

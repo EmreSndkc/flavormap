@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Yorumu Sil - FlavorMap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">Yorumu Sil</h3>
+            </div>
+            <div class="card-body text-center">
+                <p class="fs-5">Bu restoran için yaptığınız yorumu silmek istediğinize emin misiniz?</p>
+                <p class="text-muted">Bu işlem geri alınamaz.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'restaurants:restaurant_detail' review.restaurant.pk %}" class="btn btn-secondary me-2">İptal</a>
+                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
