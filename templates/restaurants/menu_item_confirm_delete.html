@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Menü Öğesini Sil - FlavorMap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">Menü Öğesini Sil</h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>{{ menu_item.name }}</strong> adlı menü öğesini silmek istediğinizden emin misiniz?
+                </p>
+                <p class="text-muted">{{ restaurant.name }} - {{ menu_item.price }} TL</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                    <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-secondary">İptal</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

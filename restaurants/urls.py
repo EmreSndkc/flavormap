@@ -12,6 +12,9 @@ urlpatterns = [
     path('restoranlar/<int:pk>/favori/', views.toggle_favorite, name='toggle_favorite'),
     path('restoranlar/<int:pk>/duzenle/', views.restaurant_update, name='restaurant_update'),
     path('restoranlar/<int:pk>/sil/', views.restaurant_delete, name='restaurant_delete'),
+    path('restoranlar/<int:restaurant_pk>/menu/yeni/', views.menu_item_create, name='menu_item_create'),
+    path('menu/<int:pk>/duzenle/', views.menu_item_update, name='menu_item_update'),
+    path('menu/<int:pk>/sil/', views.menu_item_delete, name='menu_item_delete'),
     
     # Review URLs
     path('yorumlar/<int:pk>/duzenle/', views.review_update, name='review_update'),

@@ -3,8 +3,8 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Restaurant, Category, Review
-from .forms import UserRegisterForm, RestaurantForm, ReviewForm
+from .models import Restaurant, Category, Review, MenuItem
+from .forms import UserRegisterForm, RestaurantForm, ReviewForm, MenuItemForm
 
 
 def home(request):
@@ -92,6 +92,68 @@ def toggle_favorite(request, pk):
     else:
         restaurant.favorited_by.add(request.user)
     return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+
+
+@login_required
+def menu_item_create(request, restaurant_pk):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_pk)
+    if restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu restoranın menüsünü düzenleme yetkiniz yok.")
+
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST)
+        if form.is_valid():
+            menu_item = form.save(commit=False)
+            menu_item.restaurant = restaurant
+            menu_item.save()
+            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+    else:
+        form = MenuItemForm()
+
+    return render(
+        request,
+        'restaurants/menu_item_form.html',
+        {'form': form, 'restaurant': restaurant},
+    )
+
+
+@login_required
+def menu_item_update(request, pk):
+    menu_item = get_object_or_404(MenuItem.objects.select_related('restaurant'), pk=pk)
+    if menu_item.restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu menü öğesini düzenleme yetkiniz yok.")
+
+    if request.method == 'POST':
+        form = MenuItemForm(request.POST, instance=menu_item)
+        if form.is_valid():
+            form.save()
+            return redirect('restaurants:restaurant_detail', pk=menu_item.restaurant.pk)
+    else:
+        form = MenuItemForm(instance=menu_item)
+
+    return render(
+        request,
+        'restaurants/menu_item_form.html',
+        {'form': form, 'restaurant': menu_item.restaurant, 'menu_item': menu_item, 'is_update': True},
+    )
+
+
+@login_required
+def menu_item_delete(request, pk):
+    menu_item = get_object_or_404(MenuItem.objects.select_related('restaurant'), pk=pk)
+    if menu_item.restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu menü öğesini silme yetkiniz yok.")
+
+    restaurant = menu_item.restaurant
+    if request.method == 'POST':
+        menu_item.delete()
+        return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+
+    return render(
+        request,
+        'restaurants/menu_item_confirm_delete.html',
+        {'menu_item': menu_item, 'restaurant': restaurant},
+    )
 
 
 @login_required
