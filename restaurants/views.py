@@ -98,7 +98,7 @@ def register(request):
 @login_required
 def restaurant_create(request):
     if request.method == 'POST':
-        form = RestaurantForm(request.POST)
+        form = RestaurantForm(request.POST, request.FILES)
         if form.is_valid():
             restaurant = form.save(commit=False)
             restaurant.creator = request.user
@@ -115,7 +115,7 @@ def restaurant_update(request, pk):
         return HttpResponseForbidden("Bu restoranı düzenleme yetkiniz yok.")
     
     if request.method == 'POST':
-        form = RestaurantForm(request.POST, instance=restaurant)
+        form = RestaurantForm(request.POST, request.FILES, instance=restaurant)
         if form.is_valid():
             form.save()
             return redirect('restaurants:restaurant_detail', pk=restaurant.pk)

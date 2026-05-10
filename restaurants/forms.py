@@ -13,7 +13,7 @@ class UserRegisterForm(UserCreationForm):
 class RestaurantForm(forms.ModelForm):
     class Meta:
         model = Restaurant
-        fields = ['name', 'description', 'address', 'phone', 'price_range', 'category']
+        fields = ['name', 'description', 'address', 'phone', 'price_range', 'category', 'photo']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
@@ -21,6 +21,7 @@ class RestaurantForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'price_range': forms.Select(attrs={'class': 'form-select'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 class ReviewForm(forms.ModelForm):

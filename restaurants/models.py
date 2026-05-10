@@ -39,6 +39,12 @@ class Restaurant(models.Model):
         related_name='restaurants',
         verbose_name='Kategori',
     )
+    photo = models.ImageField(
+        upload_to='restaurants/',
+        null=True,
+        blank=True,
+        verbose_name='Fotoğraf',
+    )
     creator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

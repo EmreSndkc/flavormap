@@ -13,6 +13,9 @@
         </div>
     {% endif %}
 </div>
+{% if restaurant.photo %}
+    <img src="{{ restaurant.photo.url }}" alt="{{ restaurant.name }} fotoğrafı" class="img-fluid rounded mb-3 w-100" style="max-height: 420px; object-fit: cover;">
+{% endif %}
 <p>{{ restaurant.description }}</p>
 <p><strong>Adres:</strong> {{ restaurant.address }}</p>
 <p><strong>Telefon:</strong> {{ restaurant.phone }}</p>

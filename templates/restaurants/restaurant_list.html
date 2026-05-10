@@ -49,6 +49,9 @@
         {% for restaurant in restaurants %}
         <div class="col-md-4 mb-3">
             <div class="card h-100">
+                {% if restaurant.photo %}
+                    <img src="{{ restaurant.photo.url }}" class="card-img-top" alt="{{ restaurant.name }} fotoğrafı" style="height: 180px; object-fit: cover;">
+                {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ restaurant.name }}</h5>
                     <p class="card-text text-truncate">{{ restaurant.description }}</p>

@@ -15,7 +15,7 @@
                 <a href="{% if is_update %}{% url 'restaurants:restaurant_detail' form.instance.pk %}{% else %}{% url 'restaurants:restaurant_list' %}{% endif %}" class="btn btn-sm btn-light">İptal</a>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     {% for field in form %}
