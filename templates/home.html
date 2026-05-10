@@ -51,4 +51,30 @@
     <p>Henuz restoran eklenmemis.</p>
 {% endif %}
 
+<hr>
+
+<h2>En Yuksek Puanlilar</h2>
+{% if top_rated_restaurants %}
+    <div class="row">
+        {% for restaurant in top_rated_restaurants %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                {% if restaurant.photo %}
+                    <img src="{{ restaurant.photo.url }}" class="card-img-top" alt="{{ restaurant.name }} fotoğrafı" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ restaurant.name }}</h5>
+                    <p class="card-text">{{ restaurant.description }}</p>
+                    <p><strong>Adres:</strong> {{ restaurant.address }}</p>
+                    <p><strong>Puan:</strong> {{ restaurant.avg_rating|floatformat:1 }} / 5</p>
+                    <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Henuz puan verilmis restoran yok.</p>
+{% endif %}
+
 {% endblock %}

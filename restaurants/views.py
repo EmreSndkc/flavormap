@@ -3,15 +3,28 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.db.models import Avg, Count, Q
 from .models import Restaurant, Category, Review, MenuItem
-from .forms import UserRegisterForm, RestaurantForm, ReviewForm, MenuItemForm
+from .forms import UserRegisterForm, RestaurantForm, ReviewForm, ReviewReplyForm, MenuItemForm
 
 
 def home(request):
     featured_restaurants = Restaurant.objects.select_related('category').order_by('-created_at')[:6]
+    top_rated_restaurants = (
+        Restaurant.objects
+        .select_related('category')
+        .annotate(
+            avg_rating=Avg('reviews__stars', filter=Q(reviews__parent__isnull=True)),
+            review_count=Count('reviews', filter=Q(reviews__parent__isnull=True)),
+        )
+        .filter(review_count__gt=0)
+        .order_by('-avg_rating', '-review_count', 'name')[:6]
+    )
     categories = Category.objects.all()
     context = {
         'featured_restaurants': featured_restaurants,
+        'top_rated_restaurants': top_rated_restaurants,
         'categories': categories,
     }
     return render(request, 'home.html', context)
@@ -48,21 +61,28 @@ def restaurant_list(request):
 
 def restaurant_detail(request, pk):
     restaurant = get_object_or_404(
-        Restaurant.objects.prefetch_related('menu_items', 'reviews__user'),
+        Restaurant.objects.prefetch_related('menu_items', 'reviews__user', 'opening_hours'),
         pk=pk,
+    )
+    reviews = (
+        restaurant.reviews
+        .filter(parent__isnull=True)
+        .select_related('user')
+        .prefetch_related('replies__user')
     )
 
     user_has_reviewed = False
     if request.user.is_authenticated:
-        user_has_reviewed = restaurant.reviews.filter(user=request.user).exists()
+        user_has_reviewed = restaurant.reviews.filter(user=request.user, parent__isnull=True).exists()
 
     if request.method == 'POST' and request.user.is_authenticated and not user_has_reviewed:
         form = ReviewForm(request.POST)
         if form.is_valid():
-            review = form.save(commit=False)
-            review.restaurant = restaurant
-            review.user = request.user
-            review.save()
+            with transaction.atomic():
+                review = form.save(commit=False)
+                review.restaurant = restaurant
+                review.user = request.user
+                review.save()
             return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
     else:
         form = ReviewForm()
@@ -75,8 +95,10 @@ def restaurant_detail(request, pk):
     context = {
         'restaurant': restaurant,
         'menu_items': restaurant.menu_items.all(),
-        'reviews': restaurant.reviews.all(),
+        'opening_hours': restaurant.opening_hours.all(),
+        'reviews': reviews,
         'form': form,
+        'reply_form': ReviewReplyForm(),
         'user_has_reviewed': user_has_reviewed,
         'is_favorite': is_favorite,
     }
@@ -92,6 +114,25 @@ def toggle_favorite(request, pk):
     else:
         restaurant.favorited_by.add(request.user)
     return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+
+
+@login_required
+@require_POST
+def review_reply_create(request, pk):
+    parent_review = get_object_or_404(
+        Review.objects.select_related('restaurant'),
+        pk=pk,
+        parent__isnull=True,
+    )
+    form = ReviewReplyForm(request.POST)
+    if form.is_valid():
+        with transaction.atomic():
+            reply = form.save(commit=False)
+            reply.restaurant = parent_review.restaurant
+            reply.parent = parent_review
+            reply.user = request.user
+            reply.save()
+    return redirect('restaurants:restaurant_detail', pk=parent_review.restaurant.pk)
 
 
 @login_required
@@ -227,7 +268,11 @@ def restaurant_delete(request, pk):
         return HttpResponseForbidden("Bu restoranı silme yetkiniz yok.")
         
     if request.method == 'POST':
-        restaurant.delete()
+        photo = restaurant.photo
+        with transaction.atomic():
+            restaurant.delete()
+            if photo:
+                transaction.on_commit(lambda: photo.delete(save=False))
         return redirect('restaurants:restaurant_list')
         
     return render(request, 'restaurants/restaurant_confirm_delete.html', {'restaurant': restaurant})
@@ -250,13 +295,15 @@ def review_update(request, pk):
     review = get_object_or_404(Review, pk=pk)
     if review.user != request.user:
         return HttpResponseForbidden("Bu yorumu düzenleme yetkiniz yok.")
-        
+
+    form_class = ReviewReplyForm if review.parent_id else ReviewForm
     if request.method == 'POST':
-        form = ReviewForm(request.POST, instance=review)
+        form = form_class(request.POST, instance=review)
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                form.save()
             return redirect('restaurants:restaurant_detail', pk=review.restaurant.pk)
     else:
-        form = ReviewForm(instance=review)
+        form = form_class(instance=review)
         
     return render(request, 'restaurants/review_form.html', {'form': form, 'review': review})

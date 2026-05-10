@@ -27,7 +27,11 @@
                                     {{ review.restaurant.name }}
                                 </a>
                             </h5>
-                            <span class="badge bg-warning text-dark">{{ review.stars }} / 5</span>
+                            {% if review.parent_id %}
+                                <span class="badge bg-secondary">Cevap</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ review.stars }} / 5</span>
+                            {% endif %}
                         </div>
                         <p class="card-text mb-1">{{ review.comment }}</p>
                         <small class="text-muted">{{ review.date }}</small>

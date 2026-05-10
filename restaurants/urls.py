@@ -17,6 +17,7 @@ urlpatterns = [
     path('menu/<int:pk>/sil/', views.menu_item_delete, name='menu_item_delete'),
     
     # Review URLs
+    path('yorumlar/<int:pk>/cevapla/', views.review_reply_create, name='review_reply_create'),
     path('yorumlar/<int:pk>/duzenle/', views.review_update, name='review_update'),
     path('yorumlar/<int:pk>/sil/', views.review_delete, name='review_delete'),
     

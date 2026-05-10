@@ -25,12 +25,26 @@ class RestaurantForm(forms.ModelForm):
         }
 
 class ReviewForm(forms.ModelForm):
+    stars = forms.IntegerField(
+        label='Yıldız',
+        min_value=1,
+        max_value=5,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5}),
+    )
+
     class Meta:
         model = Review
         fields = ['stars', 'comment']
         widgets = {
-            'stars': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+class ReviewReplyForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['comment']
+        widgets = {
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Cevabınızı yazın...'}),
         }
 
 class MenuItemForm(forms.ModelForm):

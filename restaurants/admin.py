@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Restaurant, MenuItem, Review
+from .models import Category, Restaurant, MenuItem, Review, OpeningHours
 
 
 @admin.register(Category)
@@ -15,8 +15,14 @@ class MenuItemInline(admin.TabularInline):
 
 class ReviewInline(admin.TabularInline):
     model = Review
+    fk_name = 'restaurant'
     extra = 0
     readonly_fields = ['date']
+
+
+class OpeningHoursInline(admin.TabularInline):
+    model = OpeningHours
+    extra = 7
 
 
 @admin.register(Restaurant)
@@ -24,7 +30,7 @@ class RestaurantAdmin(admin.ModelAdmin):
     list_display = ['name', 'category', 'price_range', 'phone', 'average_rating', 'created_at']
     search_fields = ['name', 'address', 'description']
     list_filter = ['price_range', 'category']
-    inlines = [MenuItemInline, ReviewInline]
+    inlines = [MenuItemInline, OpeningHoursInline, ReviewInline]
 
 
 @admin.register(MenuItem)
@@ -36,6 +42,13 @@ class MenuItemAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['restaurant', 'stars', 'date', 'comment']
+    list_display = ['restaurant', 'stars', 'parent', 'date', 'comment']
     search_fields = ['restaurant__name', 'comment']
     list_filter = ['stars', 'date']
+
+
+@admin.register(OpeningHours)
+class OpeningHoursAdmin(admin.ModelAdmin):
+    list_display = ['restaurant', 'day_of_week', 'open_time', 'close_time', 'is_closed']
+    list_filter = ['day_of_week', 'is_closed']
+    search_fields = ['restaurant__name']

@@ -70,7 +70,7 @@ class Restaurant(models.Model):
 
     @property
     def average_rating(self):
-        reviews = self.reviews.all()
+        reviews = self.reviews.filter(parent__isnull=True, stars__isnull=False)
         if not reviews.exists():
             return None
         total = sum(r.stars for r in reviews)
@@ -95,9 +95,45 @@ class MenuItem(models.Model):
         return f'{self.name} - {self.price}₺'
 
 
+class OpeningHours(models.Model):
+    DAY_CHOICES = [
+        (0, 'Pazartesi'),
+        (1, 'Salı'),
+        (2, 'Çarşamba'),
+        (3, 'Perşembe'),
+        (4, 'Cuma'),
+        (5, 'Cumartesi'),
+        (6, 'Pazar'),
+    ]
+
+    restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.CASCADE,
+        related_name='opening_hours',
+        verbose_name='Restoran',
+    )
+    day_of_week = models.IntegerField(choices=DAY_CHOICES, verbose_name='Gün')
+    open_time = models.TimeField(null=True, blank=True, verbose_name='Açılış Saati')
+    close_time = models.TimeField(null=True, blank=True, verbose_name='Kapanış Saati')
+    is_closed = models.BooleanField(default=False, verbose_name='Kapalı')
+
+    class Meta:
+        verbose_name = 'Çalışma Saati'
+        verbose_name_plural = 'Çalışma Saatleri'
+        ordering = ['day_of_week']
+        unique_together = ['restaurant', 'day_of_week']
+
+    def __str__(self):
+        if self.is_closed:
+            return f'{self.restaurant.name} - {self.get_day_of_week_display()}: Kapalı'
+        return f'{self.restaurant.name} - {self.get_day_of_week_display()}: {self.open_time} - {self.close_time}'
+
+
 class Review(models.Model):
     stars = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
+        null=True,
+        blank=True,
         verbose_name='Yıldız',
     )
     comment = models.TextField(verbose_name='Yorum')
@@ -116,6 +152,14 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Restoran',
     )
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies',
+        verbose_name='Yanıtlanan Yorum',
+    )
 
     class Meta:
         verbose_name = 'Değerlendirme'
@@ -123,4 +167,6 @@ class Review(models.Model):
         ordering = ['-date']
 
     def __str__(self):
+        if self.parent_id:
+            return f'{self.restaurant.name} - yorum cevabı'
         return f'{self.restaurant.name} - {self.stars} yıldız'
