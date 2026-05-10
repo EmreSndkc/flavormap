@@ -53,6 +53,12 @@ class Restaurant(models.Model):
         null=True,
         blank=True,
     )
+    favorited_by = models.ManyToManyField(
+        User,
+        related_name='favorite_restaurants',
+        blank=True,
+        verbose_name='Favorilere Ekleyenler',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

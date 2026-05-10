@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - FlavorMap{% endblock %}
+
+{% block content %}
+
+<h1>Profil</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ profile_user.username }}</h5>
+        <p class="mb-1"><strong>E-posta:</strong> {{ profile_user.email|default:"Belirtilmemiş" }}</p>
+        <p class="mb-0"><strong>Katılım Tarihi:</strong> {{ profile_user.date_joined|date:"d.m.Y" }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <h2>Yorumlarım</h2>
+        {% if user_reviews %}
+            {% for review in user_reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-1">
+                                <a href="{% url 'restaurants:restaurant_detail' review.restaurant.pk %}" class="text-decoration-none">
+                                    {{ review.restaurant.name }}
+                                </a>
+                            </h5>
+                            <span class="badge bg-warning text-dark">{{ review.stars }} / 5</span>
+                        </div>
+                        <p class="card-text mb-1">{{ review.comment }}</p>
+                        <small class="text-muted">{{ review.date }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Henüz yorum yazmadınız.</p>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <h2>Favori Restoranlarım</h2>
+        {% if favorite_restaurants %}
+            {% for restaurant in favorite_restaurants %}
+                <div class="card mb-3">
+                    {% if restaurant.photo %}
+                        <img src="{{ restaurant.photo.url }}" class="card-img-top" alt="{{ restaurant.name }} fotoğrafı" style="height: 160px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ restaurant.name }}</h5>
+                        <p class="card-text text-truncate">{{ restaurant.description }}</p>
+                        {% if restaurant.category %}
+                            <p class="mb-1"><small><strong>Kategori:</strong> {{ restaurant.category.name }}</small></p>
+                        {% endif %}
+                        <p class="mb-2"><small><strong>Adres:</strong> {{ restaurant.address }}</small></p>
+                        <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Henüz favori restoran eklemediniz.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

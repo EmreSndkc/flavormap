@@ -6,12 +6,22 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">{{ restaurant.name }}</h1>
-    {% if user.is_authenticated and user == restaurant.creator %}
-        <div>
+    <div class="d-flex gap-2">
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'restaurants:toggle_favorite' restaurant.pk %}">
+                {% csrf_token %}
+                {% if is_favorite %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Favoriden Çıkar</button>
+                {% else %}
+                    <button type="submit" class="btn btn-outline-primary btn-sm">Favoriye Ekle</button>
+                {% endif %}
+            </form>
+        {% endif %}
+        {% if user.is_authenticated and user == restaurant.creator %}
             <a href="{% url 'restaurants:restaurant_update' restaurant.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
             <a href="{% url 'restaurants:restaurant_delete' restaurant.pk %}" class="btn btn-danger btn-sm">Sil</a>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 {% if restaurant.photo %}
     <img src="{{ restaurant.photo.url }}" alt="{{ restaurant.name }} fotoğrafı" class="img-fluid rounded mb-3 w-100" style="max-height: 420px; object-fit: cover;">

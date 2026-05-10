@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from .models import Restaurant, Category, Review
 from .forms import UserRegisterForm, RestaurantForm, ReviewForm
 
@@ -50,11 +51,11 @@ def restaurant_detail(request, pk):
         Restaurant.objects.prefetch_related('menu_items', 'reviews__user'),
         pk=pk,
     )
-    
+
     user_has_reviewed = False
     if request.user.is_authenticated:
         user_has_reviewed = restaurant.reviews.filter(user=request.user).exists()
-        
+
     if request.method == 'POST' and request.user.is_authenticated and not user_has_reviewed:
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -65,15 +66,48 @@ def restaurant_detail(request, pk):
             return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
     else:
         form = ReviewForm()
-        
+
+    is_favorite = (
+        request.user.is_authenticated
+        and restaurant.favorited_by.filter(pk=request.user.pk).exists()
+    )
+
     context = {
         'restaurant': restaurant,
         'menu_items': restaurant.menu_items.all(),
         'reviews': restaurant.reviews.all(),
         'form': form,
         'user_has_reviewed': user_has_reviewed,
+        'is_favorite': is_favorite,
     }
     return render(request, 'restaurants/restaurant_detail.html', context)
+
+
+@login_required
+@require_POST
+def toggle_favorite(request, pk):
+    restaurant = get_object_or_404(Restaurant, pk=pk)
+    if restaurant.favorited_by.filter(pk=request.user.pk).exists():
+        restaurant.favorited_by.remove(request.user)
+    else:
+        restaurant.favorited_by.add(request.user)
+    return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+
+
+@login_required
+def profile(request):
+    user_reviews = (
+        request.user.reviews
+        .select_related('restaurant')
+        .order_by('-date')
+    )
+    favorite_restaurants = request.user.favorite_restaurants.select_related('category').order_by('name')
+    context = {
+        'profile_user': request.user,
+        'user_reviews': user_reviews,
+        'favorite_restaurants': favorite_restaurants,
+    }
+    return render(request, 'registration/profile.html', context)
 
 
 def about(request):
