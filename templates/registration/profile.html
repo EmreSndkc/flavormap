@@ -14,6 +14,47 @@
     </div>
 </div>
 
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Restoran Başvurularım</h2>
+        <a href="{% url 'restaurants:restaurant_create' %}" class="btn btn-success btn-sm">Restoran Başvurusu Yap</a>
+    </div>
+    {% if created_restaurants %}
+        <div class="row">
+            {% for restaurant in created_restaurants %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        {% if restaurant.photo %}
+                            <img src="{{ restaurant.photo.url }}" class="card-img-top" alt="{{ restaurant.name }} fotoğrafı" style="height: 160px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <h5 class="card-title mb-1">{{ restaurant.name }}</h5>
+                                {% if restaurant.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Onay Bekliyor</span>
+                                {% elif restaurant.status == 'approved' %}
+                                    <span class="badge bg-success">Onaylandı</span>
+                                {% elif restaurant.status == 'rejected' %}
+                                    <span class="badge bg-danger">Reddedildi</span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-truncate">{{ restaurant.description }}</p>
+                            {% if restaurant.category %}
+                                <p class="mb-1"><small><strong>Kategori:</strong> {{ restaurant.category.name }}</small></p>
+                            {% endif %}
+                            <p class="mb-2"><small><strong>Adres:</strong> {{ restaurant.address }}</small></p>
+                            <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
+                            <a href="{% url 'restaurants:restaurant_update' restaurant.pk %}" class="btn btn-outline-secondary btn-sm">Düzenle</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Henüz restoran başvurusu yapmadınız.</p>
+    {% endif %}
+</div>
+
 <div class="row">
     <div class="col-md-6 mb-4">
         <h2>Yorumlarım</h2>

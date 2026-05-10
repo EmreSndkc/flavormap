@@ -27,9 +27,10 @@ class OpeningHoursInline(admin.TabularInline):
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price_range', 'phone', 'average_rating', 'created_at']
-    search_fields = ['name', 'address', 'description']
-    list_filter = ['price_range', 'category']
+    list_display = ['name', 'status', 'creator', 'category', 'price_range', 'phone', 'average_rating', 'created_at']
+    list_editable = ['status']
+    search_fields = ['name', 'address', 'description', 'creator__username']
+    list_filter = ['status', 'price_range', 'category']
     inlines = [MenuItemInline, OpeningHoursInline, ReviewInline]
 
 

@@ -967,6 +967,7 @@ for cuisine_name, cuisine_data in data.items():
             phone=r["phone"],
             price_range=r["price"],
             category=category,
+            status=Restaurant.STATUS_APPROVED,
         )
         for item_name, item_price in r["menu"]:
             MenuItem.objects.create(name=item_name, price=item_price, restaurant=restaurant)

@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.db.models import Avg, Count, Q
@@ -10,9 +11,15 @@ from .forms import UserRegisterForm, RestaurantForm, ReviewForm, ReviewReplyForm
 
 
 def home(request):
-    featured_restaurants = Restaurant.objects.select_related('category').order_by('-created_at')[:6]
+    featured_restaurants = (
+        Restaurant.objects
+        .filter(status=Restaurant.STATUS_APPROVED)
+        .select_related('category')
+        .order_by('-created_at')[:6]
+    )
     top_rated_restaurants = (
         Restaurant.objects
+        .filter(status=Restaurant.STATUS_APPROVED)
         .select_related('category')
         .annotate(
             avg_rating=Avg('reviews__stars', filter=Q(reviews__parent__isnull=True)),
@@ -31,7 +38,12 @@ def home(request):
 
 
 def restaurant_list(request):
-    restaurants = Restaurant.objects.select_related('category').order_by('name')
+    restaurants = (
+        Restaurant.objects
+        .filter(status=Restaurant.STATUS_APPROVED)
+        .select_related('category')
+        .order_by('name')
+    )
     categories = Category.objects.all()
 
     category_id = request.GET.get('category')
@@ -60,8 +72,14 @@ def restaurant_list(request):
 
 
 def restaurant_detail(request, pk):
+    restaurants = Restaurant.objects.prefetch_related('menu_items', 'reviews__user', 'opening_hours')
+    if request.user.is_authenticated:
+        restaurants = restaurants.filter(Q(status=Restaurant.STATUS_APPROVED) | Q(creator=request.user))
+    else:
+        restaurants = restaurants.filter(status=Restaurant.STATUS_APPROVED)
+
     restaurant = get_object_or_404(
-        Restaurant.objects.prefetch_related('menu_items', 'reviews__user', 'opening_hours'),
+        restaurants,
         pk=pk,
     )
     reviews = (
@@ -72,10 +90,15 @@ def restaurant_detail(request, pk):
     )
 
     user_has_reviewed = False
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and restaurant.status == Restaurant.STATUS_APPROVED:
         user_has_reviewed = restaurant.reviews.filter(user=request.user, parent__isnull=True).exists()
 
-    if request.method == 'POST' and request.user.is_authenticated and not user_has_reviewed:
+    if (
+        request.method == 'POST'
+        and request.user.is_authenticated
+        and restaurant.status == Restaurant.STATUS_APPROVED
+        and not user_has_reviewed
+    ):
         form = ReviewForm(request.POST)
         if form.is_valid():
             with transaction.atomic():
@@ -108,7 +131,7 @@ def restaurant_detail(request, pk):
 @login_required
 @require_POST
 def toggle_favorite(request, pk):
-    restaurant = get_object_or_404(Restaurant, pk=pk)
+    restaurant = get_object_or_404(Restaurant, pk=pk, status=Restaurant.STATUS_APPROVED)
     if restaurant.favorited_by.filter(pk=request.user.pk).exists():
         restaurant.favorited_by.remove(request.user)
     else:
@@ -123,6 +146,7 @@ def review_reply_create(request, pk):
         Review.objects.select_related('restaurant'),
         pk=pk,
         parent__isnull=True,
+        restaurant__status=Restaurant.STATUS_APPROVED,
     )
     form = ReviewReplyForm(request.POST)
     if form.is_valid():
@@ -140,6 +164,8 @@ def menu_item_create(request, restaurant_pk):
     restaurant = get_object_or_404(Restaurant, pk=restaurant_pk)
     if restaurant.creator != request.user:
         return HttpResponseForbidden("Bu restoranın menüsünü düzenleme yetkiniz yok.")
+    if restaurant.status != Restaurant.STATUS_APPROVED:
+        return HttpResponseForbidden("Menü eklemek için restoran başvurusu onaylanmış olmalı.")
 
     if request.method == 'POST':
         form = MenuItemForm(request.POST)
@@ -163,6 +189,8 @@ def menu_item_update(request, pk):
     menu_item = get_object_or_404(MenuItem.objects.select_related('restaurant'), pk=pk)
     if menu_item.restaurant.creator != request.user:
         return HttpResponseForbidden("Bu menü öğesini düzenleme yetkiniz yok.")
+    if menu_item.restaurant.status != Restaurant.STATUS_APPROVED:
+        return HttpResponseForbidden("Menü düzenlemek için restoran başvurusu onaylanmış olmalı.")
 
     if request.method == 'POST':
         form = MenuItemForm(request.POST, instance=menu_item)
@@ -184,6 +212,8 @@ def menu_item_delete(request, pk):
     menu_item = get_object_or_404(MenuItem.objects.select_related('restaurant'), pk=pk)
     if menu_item.restaurant.creator != request.user:
         return HttpResponseForbidden("Bu menü öğesini silme yetkiniz yok.")
+    if menu_item.restaurant.status != Restaurant.STATUS_APPROVED:
+        return HttpResponseForbidden("Menü silmek için restoran başvurusu onaylanmış olmalı.")
 
     restaurant = menu_item.restaurant
     if request.method == 'POST':
@@ -204,11 +234,18 @@ def profile(request):
         .select_related('restaurant')
         .order_by('-date')
     )
-    favorite_restaurants = request.user.favorite_restaurants.select_related('category').order_by('name')
+    favorite_restaurants = (
+        request.user.favorite_restaurants
+        .filter(status=Restaurant.STATUS_APPROVED)
+        .select_related('category')
+        .order_by('name')
+    )
+    created_restaurants = request.user.created_restaurants.select_related('category').order_by('-created_at')
     context = {
         'profile_user': request.user,
         'user_reviews': user_reviews,
         'favorite_restaurants': favorite_restaurants,
+        'created_restaurants': created_restaurants,
     }
     return render(request, 'registration/profile.html', context)
 
@@ -239,7 +276,9 @@ def restaurant_create(request):
         if form.is_valid():
             restaurant = form.save(commit=False)
             restaurant.creator = request.user
+            restaurant.status = Restaurant.STATUS_PENDING
             restaurant.save()
+            messages.success(request, "Restoran başvurunuz alındı. Admin onayından sonra yayına alınacaktır.")
             return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
     else:
         form = RestaurantForm()

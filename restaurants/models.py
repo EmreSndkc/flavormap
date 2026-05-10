@@ -15,6 +15,16 @@ class Category(models.Model):
 
 
 class Restaurant(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Onay Bekliyor'),
+        (STATUS_APPROVED, 'Onaylandı'),
+        (STATUS_REJECTED, 'Reddedildi'),
+    ]
+
     PRICE_CHOICES = [
         ('€', '€ - Ekonomik'),
         ('€€', '€€ - Orta'),
@@ -58,6 +68,12 @@ class Restaurant(models.Model):
         related_name='favorite_restaurants',
         blank=True,
         verbose_name='Favorilere Ekleyenler',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING,
+        verbose_name='Onay Durumu',
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
