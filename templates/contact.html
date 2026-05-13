@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Iletisim - FlavorMap{% endblock %}
+{% block title %}İletişim - FlavorMap{% endblock %}
 
 {% block content %}
 
-<h1>Iletisim</h1>
-<p>Bizimle iletisime gecmek icin asagidaki formu doldurabilirsiniz.</p>
+<h1>İletişim</h1>
+<p>Bizimle iletişime geçmek için aşağıdaki formu doldurabilirsiniz.</p>
 
-<form>
+<form method="post" action="{% url 'restaurants:contact' %}">
     {% csrf_token %}
     <div class="mb-3">
-        <label>Ad Soyad</label>
-        <input type="text" class="form-control" placeholder="Adinizi girin">
+        <label for="contact-name">Ad Soyad</label>
+        <input type="text" name="name" id="contact-name" class="form-control" placeholder="Adınızı girin" required>
     </div>
     <div class="mb-3">
-        <label>E-posta</label>
-        <input type="email" class="form-control" placeholder="E-posta adresinizi girin">
+        <label for="contact-email">E-posta</label>
+        <input type="email" name="email" id="contact-email" class="form-control" placeholder="E-posta adresinizi girin" required>
     </div>
     <div class="mb-3">
-        <label>Mesaj</label>
-        <textarea class="form-control" rows="4" placeholder="Mesajinizi yazin"></textarea>
+        <label for="contact-message">Mesaj</label>
+        <textarea name="message" id="contact-message" class="form-control" rows="4" placeholder="Mesajınızı yazın" required></textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Gonder</button>
+    <button type="submit" class="btn btn-primary">Gönder</button>
 </form>
 
 {% endblock %}

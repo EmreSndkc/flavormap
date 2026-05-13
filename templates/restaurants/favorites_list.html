@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Favori Restoranlarım - FlavorMap{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Favori Restoranlarım</h1>
+    <a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-outline-primary btn-sm">Tüm Restoranlar</a>
+</div>
+
+{% if restaurants %}
+    <p class="text-muted">Toplam {{ restaurants|length }} favori restoran.</p>
+    <div class="row">
+        {% for restaurant in restaurants %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    {% if restaurant.photo %}
+                        <img src="{{ restaurant.photo.url }}" class="card-img-top" alt="{{ restaurant.name }} fotoğrafı" style="height: 180px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ restaurant.name }}</h5>
+                        <p class="card-text text-truncate">{{ restaurant.description }}</p>
+                        {% if restaurant.category %}
+                            <p class="mb-1"><small><strong>Kategori:</strong> {{ restaurant.category.name }}</small></p>
+                        {% endif %}
+                        <p class="mb-1"><small><strong>Adres:</strong> {{ restaurant.address }}</small></p>
+                        <p class="mb-1"><small><strong>Fiyat:</strong> {{ restaurant.price_range }}</small></p>
+                        {% if restaurant.avg_rating %}
+                            <p class="mb-2"><small><strong>Puan:</strong> <span class="badge bg-warning text-dark">{{ restaurant.avg_rating|floatformat:1 }} / 5</span> <span class="text-muted">({{ restaurant.review_count }} yorum)</span></small></p>
+                        {% else %}
+                            <p class="mb-2"><small class="text-muted">Henüz puan yok.</small></p>
+                        {% endif %}
+                        <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info text-center mt-4">
+        <h4>Henüz favori restoranınız yok.</h4>
+        <p class="mb-3">Restoran detay sayfasından "Favoriye Ekle" butonuna tıklayarak favori listenizi oluşturabilirsiniz.</p>
+        <a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-primary">Restoranları Keşfet</a>
+    </div>
+{% endif %}
+
+{% endblock %}

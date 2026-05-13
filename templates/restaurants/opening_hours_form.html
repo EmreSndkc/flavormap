@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Çalışma Saatleri - {{ restaurant.name }} - FlavorMap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Çalışma Saatleri – {{ restaurant.name }}</h3>
+                <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-sm btn-light">İptal</a>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Her gün için açılış-kapanış saatini girin veya "Kapalı" işaretleyin. Boş bıraktığınız satırlar kaydedilmez.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+
+                    {% if formset.non_form_errors %}
+                        <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+                    {% endif %}
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Gün</th>
+                                    <th>Açılış</th>
+                                    <th>Kapanış</th>
+                                    <th>Kapalı</th>
+                                    {% if formset.can_delete %}<th>Sil</th>{% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for form in formset %}
+                                    <tr>
+                                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                                        <td>{{ form.day_of_week }}{% if form.day_of_week.errors %}<div class="text-danger small">{{ form.day_of_week.errors }}</div>{% endif %}</td>
+                                        <td>{{ form.open_time }}{% if form.open_time.errors %}<div class="text-danger small">{{ form.open_time.errors }}</div>{% endif %}</td>
+                                        <td>{{ form.close_time }}{% if form.close_time.errors %}<div class="text-danger small">{{ form.close_time.errors }}</div>{% endif %}</td>
+                                        <td class="text-center">{{ form.is_closed }}</td>
+                                        {% if formset.can_delete %}
+                                            <td class="text-center">{{ form.DELETE }}</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-outline-secondary">Geri Dön</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

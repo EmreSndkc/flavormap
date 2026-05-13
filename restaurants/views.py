@@ -1,13 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseForbidden
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Avg, Count, Q
-from .models import Restaurant, Category, Review, MenuItem
-from .forms import UserRegisterForm, RestaurantForm, ReviewForm, ReviewReplyForm, MenuItemForm
+from .models import Restaurant, Category, Review, MenuItem, ContactMessage, OpeningHours
+from .forms import UserRegisterForm, RestaurantForm, ReviewForm, ReviewReplyForm, MenuItemForm, OpeningHoursFormSet
 
 
 def home(request):
@@ -42,7 +44,10 @@ def restaurant_list(request):
         Restaurant.objects
         .filter(status=Restaurant.STATUS_APPROVED)
         .select_related('category')
-        .order_by('name')
+        .annotate(
+            avg_rating=Avg('reviews__stars', filter=Q(reviews__parent__isnull=True)),
+            review_count=Count('reviews', filter=Q(reviews__parent__isnull=True)),
+        )
     )
     categories = Category.objects.all()
 
@@ -50,23 +55,65 @@ def restaurant_list(request):
     price_range = request.GET.get('price')
     search_query = request.GET.get('q')
     location_query = request.GET.get('location')
+    sort = request.GET.get('sort', 'name')
+    min_rating_raw = request.GET.get('min_rating')
+    has_photo = request.GET.get('has_photo')
+
+    # Min puanı sayısala dönüştür (geçersiz değerleri yoksay)
+    min_rating = None
+    if min_rating_raw:
+        try:
+            value = float(min_rating_raw)
+            if 1 <= value <= 5:
+                min_rating = value
+        except (TypeError, ValueError):
+            min_rating = None
 
     if category_id:
         restaurants = restaurants.filter(category_id=category_id)
     if price_range:
         restaurants = restaurants.filter(price_range=price_range)
     if search_query:
-        restaurants = restaurants.filter(name__icontains=search_query)
+        restaurants = restaurants.filter(
+            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        )
     if location_query:
         restaurants = restaurants.filter(address__icontains=location_query)
+    if min_rating is not None:
+        restaurants = restaurants.filter(avg_rating__gte=min_rating)
+    if has_photo:
+        restaurants = restaurants.exclude(photo='').exclude(photo__isnull=True)
+
+    if sort == 'rating':
+        restaurants = restaurants.order_by('-avg_rating', '-review_count', 'name')
+    elif sort == 'newest':
+        restaurants = restaurants.order_by('-created_at')
+    else:
+        restaurants = restaurants.order_by('name')
+
+    # Filtre query string'ini koru (page parametresi hariç)
+    qs_params = request.GET.copy()
+    qs_params.pop('page', None)
+    querystring = qs_params.urlencode()
+
+    paginator = Paginator(restaurants, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     context = {
-        'restaurants': restaurants,
+        'restaurants': page_obj.object_list,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'is_paginated': page_obj.has_other_pages(),
+        'querystring': querystring,
+        'total_count': paginator.count,
         'categories': categories,
         'selected_category': category_id,
         'selected_price': price_range,
+        'selected_sort': sort,
         'search_query': search_query,
         'location_query': location_query,
+        'selected_min_rating': min_rating_raw or '',
+        'selected_has_photo': has_photo or '',
     }
     return render(request, 'restaurants/restaurant_list.html', context)
 
@@ -101,12 +148,17 @@ def restaurant_detail(request, pk):
     ):
         form = ReviewForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                review = form.save(commit=False)
-                review.restaurant = restaurant
-                review.user = request.user
-                review.save()
-            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+            try:
+                with transaction.atomic():
+                    review = form.save(commit=False)
+                    review.restaurant = restaurant
+                    review.user = request.user
+                    review.save()
+                messages.success(request, "Yorumunuz eklendi.")
+                return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+            except IntegrityError:
+                messages.error(request, "Bu restorana zaten yorum yapmışsınız.")
+                return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
     else:
         form = ReviewForm()
 
@@ -148,15 +200,53 @@ def review_reply_create(request, pk):
         parent__isnull=True,
         restaurant__status=Restaurant.STATUS_APPROVED,
     )
+    # Aynı kullanıcı aynı yoruma çok kez cevap yazmasın (spam koruması)
+    already_replied = Review.objects.filter(
+        parent=parent_review,
+        user=request.user,
+    ).exists()
+    if already_replied:
+        messages.error(request, "Bu yoruma zaten cevap yazmışsınız.")
+        return redirect('restaurants:restaurant_detail', pk=parent_review.restaurant.pk)
+
     form = ReviewReplyForm(request.POST)
     if form.is_valid():
-        with transaction.atomic():
-            reply = form.save(commit=False)
-            reply.restaurant = parent_review.restaurant
-            reply.parent = parent_review
-            reply.user = request.user
-            reply.save()
+        try:
+            with transaction.atomic():
+                reply = form.save(commit=False)
+                reply.restaurant = parent_review.restaurant
+                reply.parent = parent_review
+                reply.user = request.user
+                reply.save()
+            messages.success(request, "Cevabınız eklendi.")
+        except IntegrityError:
+            messages.error(request, "Cevap eklenirken bir hata oluştu, lütfen tekrar deneyin.")
+    else:
+        messages.error(request, "Cevap boş olamaz.")
     return redirect('restaurants:restaurant_detail', pk=parent_review.restaurant.pk)
+
+
+@login_required
+def opening_hours_manage(request, restaurant_pk):
+    restaurant = get_object_or_404(Restaurant, pk=restaurant_pk)
+    if restaurant.creator != request.user:
+        return HttpResponseForbidden("Bu restoranın saatlerini düzenleme yetkiniz yok.")
+    if restaurant.status != Restaurant.STATUS_APPROVED:
+        return HttpResponseForbidden("Çalışma saatleri eklemek için restoran onaylanmış olmalı.")
+
+    if request.method == 'POST':
+        formset = OpeningHoursFormSet(request.POST, instance=restaurant)
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, "Çalışma saatleri güncellendi.")
+            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
+    else:
+        formset = OpeningHoursFormSet(instance=restaurant)
+    return render(
+        request,
+        'restaurants/opening_hours_form.html',
+        {'formset': formset, 'restaurant': restaurant},
+    )
 
 
 @login_required
@@ -227,26 +317,66 @@ def menu_item_delete(request, pk):
     )
 
 
-@login_required
-def profile(request):
+def _build_profile_context(request, profile_user):
+    """Profil sayfası için ortak bağlamı üretir.
+
+    Kendi profilini görüntüleyen kullanıcı her şeyi görür; başka bir
+    kullanıcının profili görüntüleniyorsa sadece onaylı restoranlar ve
+    ana yorumlar (cevaplar değil) listelenir.
+    """
+    is_own_profile = request.user.is_authenticated and request.user.pk == profile_user.pk
+
     user_reviews = (
-        request.user.reviews
+        profile_user.reviews
         .select_related('restaurant')
         .order_by('-date')
     )
-    favorite_restaurants = (
+    if not is_own_profile:
+        user_reviews = user_reviews.filter(
+            parent__isnull=True,
+            restaurant__status=Restaurant.STATUS_APPROVED,
+        )
+
+    created_restaurants = (
+        profile_user.created_restaurants
+        .select_related('category')
+        .order_by('-created_at')
+    )
+    if not is_own_profile:
+        created_restaurants = created_restaurants.filter(status=Restaurant.STATUS_APPROVED)
+
+    return {
+        'profile_user': profile_user,
+        'is_own_profile': is_own_profile,
+        'user_reviews': user_reviews,
+        'created_restaurants': created_restaurants,
+    }
+
+
+@login_required
+def profile(request):
+    context = _build_profile_context(request, request.user)
+    return render(request, 'registration/profile.html', context)
+
+
+@login_required
+def favorites_list(request):
+    restaurants = (
         request.user.favorite_restaurants
         .filter(status=Restaurant.STATUS_APPROVED)
         .select_related('category')
+        .annotate(
+            avg_rating=Avg('reviews__stars', filter=Q(reviews__parent__isnull=True)),
+            review_count=Count('reviews', filter=Q(reviews__parent__isnull=True)),
+        )
         .order_by('name')
     )
-    created_restaurants = request.user.created_restaurants.select_related('category').order_by('-created_at')
-    context = {
-        'profile_user': request.user,
-        'user_reviews': user_reviews,
-        'favorite_restaurants': favorite_restaurants,
-        'created_restaurants': created_restaurants,
-    }
+    return render(request, 'restaurants/favorites_list.html', {'restaurants': restaurants})
+
+
+def user_profile(request, username):
+    profile_user = get_object_or_404(User, username=username)
+    context = _build_profile_context(request, profile_user)
     return render(request, 'registration/profile.html', context)
 
 
@@ -255,6 +385,16 @@ def about(request):
 
 
 def contact(request):
+    if request.method == 'POST':
+        name = (request.POST.get('name') or '').strip()
+        email = (request.POST.get('email') or '').strip()
+        message = (request.POST.get('message') or '').strip()
+        if not name or not email or not message:
+            messages.error(request, "Lütfen tüm alanları doldurun.")
+        else:
+            ContactMessage.objects.create(name=name, email=email, message=message)
+            messages.success(request, "Mesajınız alındı, en kısa sürede dönüş yapacağız.")
+            return redirect('restaurants:contact')
     return render(request, 'contact.html')
 
 
@@ -308,11 +448,16 @@ def restaurant_delete(request, pk):
         
     if request.method == 'POST':
         photo = restaurant.photo
-        with transaction.atomic():
-            restaurant.delete()
-            if photo:
-                transaction.on_commit(lambda: photo.delete(save=False))
-        return redirect('restaurants:restaurant_list')
+        try:
+            with transaction.atomic():
+                restaurant.delete()
+                if photo:
+                    transaction.on_commit(lambda: photo.delete(save=False))
+            messages.success(request, "Restoran başarıyla silindi.")
+            return redirect('restaurants:restaurant_list')
+        except IntegrityError:
+            messages.error(request, "Restoran silinirken bir hata oluştu, lütfen tekrar deneyin.")
+            return redirect('restaurants:restaurant_detail', pk=restaurant.pk)
         
     return render(request, 'restaurants/restaurant_confirm_delete.html', {'restaurant': restaurant})
 
@@ -339,9 +484,14 @@ def review_update(request, pk):
     if request.method == 'POST':
         form = form_class(request.POST, instance=review)
         if form.is_valid():
-            with transaction.atomic():
-                form.save()
-            return redirect('restaurants:restaurant_detail', pk=review.restaurant.pk)
+            try:
+                with transaction.atomic():
+                    form.save()
+                messages.success(request, "Yorumunuz güncellendi.")
+                return redirect('restaurants:restaurant_detail', pk=review.restaurant.pk)
+            except IntegrityError:
+                messages.error(request, "Yorum güncellenirken bir hata oluştu.")
+                return redirect('restaurants:restaurant_detail', pk=review.restaurant.pk)
     else:
         form = form_class(instance=review)
         

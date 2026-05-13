@@ -4,10 +4,17 @@
 
 {% block content %}
 
-<h1>Hos Geldiniz!</h1>
-<p>Sehirdeki en iyi restoranları buradan kesfedebilirsiniz.</p>
-
-<a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-warning">Restoranları Goster</a>
+<div class="p-5 mb-4 rounded-3 text-white shadow-sm"
+     style="background: linear-gradient(135deg, #1042d7 0%, #ffffff 100%);">
+    <div class="container-fluid py-3">
+        <h1 class="display-4 fw-bold mb-3">Hoş Geldiniz!</h1>
+        <p class="fs-5 mb-4">Şehrin en iyi restoranlarını keşfedin, yorumlayın ve favorilerinize ekleyin.</p>
+        <a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-light btn-lg me-2">Restoranları Keşfet</a>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'restaurants:register' %}" class="btn btn-outline-light btn-lg">Hemen Kayıt Ol</a>
+        {% endif %}
+    </div>
+</div>
 
 <hr>
 
@@ -17,12 +24,12 @@
         <a href="{% url 'restaurants:restaurant_list' %}?category={{ category.id }}" class="btn btn-outline-secondary btn-sm">{{ category.name }}</a>
     {% endfor %}
 {% else %}
-    <p>Henuz kategori eklenmemis.</p>
+    <p>Henüz kategori eklenmemiş.</p>
 {% endif %}
 
 <hr>
 
-<h2>One Cikan Restoranlar</h2>
+<h2>Öne Çıkan Restoranlar</h2>
 {% if featured_restaurants %}
     <div class="row">
         {% for restaurant in featured_restaurants %}
@@ -39,7 +46,7 @@
                     {% if restaurant.average_rating %}
                         <p><strong>Puan:</strong> {{ restaurant.average_rating }} / 5</p>
                     {% else %}
-                        <p>Henuz puan verilmemis.</p>
+                        <p>Henüz puan verilmemiş.</p>
                     {% endif %}
                     <a href="{% url 'restaurants:restaurant_detail' restaurant.pk %}" class="btn btn-primary btn-sm">Detay</a>
                 </div>
@@ -48,12 +55,12 @@
         {% endfor %}
     </div>
 {% else %}
-    <p>Henuz restoran eklenmemis.</p>
+    <p>Henüz restoran eklenmemiş.</p>
 {% endif %}
 
 <hr>
 
-<h2>En Yuksek Puanlilar</h2>
+<h2>En Yüksek Puanlılar</h2>
 {% if top_rated_restaurants %}
     <div class="row">
         {% for restaurant in top_rated_restaurants %}
@@ -74,7 +81,7 @@
         {% endfor %}
     </div>
 {% else %}
-    <p>Henuz puan verilmis restoran yok.</p>
+    <p>Henüz puan verilmiş restoran yok.</p>
 {% endif %}
 
 {% endblock %}

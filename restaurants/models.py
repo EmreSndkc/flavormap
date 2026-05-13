@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
@@ -95,6 +96,8 @@ class Restaurant(models.Model):
 
 class MenuItem(models.Model):
     name = models.CharField(max_length=200, verbose_name='İsim')
+    description = models.TextField(blank=True, verbose_name='Açıklama')
+    category = models.CharField(max_length=50, blank=True, verbose_name='Menü Kategorisi')
     price = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Fiyat')
     restaurant = models.ForeignKey(
         Restaurant,
@@ -181,8 +184,31 @@ class Review(models.Model):
         verbose_name = 'Değerlendirme'
         verbose_name_plural = 'Değerlendirmeler'
         ordering = ['-date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'restaurant'],
+                condition=Q(parent__isnull=True),
+                name='unique_main_review_per_user',
+            ),
+        ]
 
     def __str__(self):
         if self.parent_id:
             return f'{self.restaurant.name} - yorum cevabı'
         return f'{self.restaurant.name} - {self.stars} yıldız'
+
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=150, verbose_name='Ad Soyad')
+    email = models.EmailField(verbose_name='E-posta')
+    message = models.TextField(verbose_name='Mesaj')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Gönderim Tarihi')
+    is_read = models.BooleanField(default=False, verbose_name='Okundu')
+
+    class Meta:
+        verbose_name = 'İletişim Mesajı'
+        verbose_name_plural = 'İletişim Mesajları'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.name} - {self.created_at:%d.%m.%Y %H:%M}'

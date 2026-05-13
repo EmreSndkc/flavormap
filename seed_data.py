@@ -17,12 +17,12 @@ data = {
         "restaurants": [
             {
                 "name": "Sultanahmet Sofrası",
-                "description": "Geleneksel Osmanlı ve Türk mutfağının en güzel örneklerini sunan tarihi bir mekan.",
+                "description": "Geleneksel Osmanlı ve Türk mutfağının en güzel örneklerini sunan tarihi bir mekân.",
                 "address": "Divan Yolu Cad. No:12, Sultanahmet, İstanbul",
                 "phone": "0212 511 22 33",
                 "price": "€€",
                 "menu": [("Kuzu İncik", 280), ("İskender Kebap", 220), ("Mercimek Çorbası", 80), ("Baklava", 120), ("Ayran", 40)],
-                "reviews": [(5, "Harika bir deneyimdi, kebaplar nefisti!"), (4, "Güzel mekan, fiyatlar biraz yüksek ama kalite iyi.")]
+                "reviews": [(5, "Harika bir deneyimdi, kebaplar nefisti!"), (4, "Güzel mekân, fiyatlar biraz yüksek ama kalite iyi.")]
             },
             {
                 "name": "Karaköy Balıkçısı",
@@ -192,7 +192,7 @@ data = {
             },
             {
                 "name": "Toscana Restaurant",
-                "description": "Toskana bölgesine ait şarap ve yemek kültürünü İstanbul'a taşıyan şık mekan.",
+                "description": "Toskana bölgesine ait şarap ve yemek kültürünü İstanbul'a taşıyan şık mekân.",
                 "address": "Etiler Mah. No:19, Beşiktaş, İstanbul",
                 "phone": "0212 352 44 55",
                 "price": "€€€",
@@ -308,7 +308,7 @@ data = {
             },
             {
                 "name": "Taco Fiesta",
-                "description": "Uygun fiyatlı cadde taco kültürünü İstanbul'a taşıyan şenlikli mekan.",
+                "description": "Uygun fiyatlı cadde taco kültürünü İstanbul'a taşıyan şenlikli mekân.",
                 "address": "Bağdat Cad. No:200, Kadıköy, İstanbul",
                 "phone": "0216 360 22 33",
                 "price": "€",
@@ -344,7 +344,7 @@ data = {
             },
             {
                 "name": "Guadalajara Street Food",
-                "description": "Meksika sokak yemeklerini çatı altında toplayan samimi mekan.",
+                "description": "Meksika sokak yemeklerini çatı altında toplayan samimi mekân.",
                 "address": "Yeldeğirmeni Mah. No:11, Kadıköy, İstanbul",
                 "phone": "0216 450 77 88",
                 "price": "€",
@@ -353,7 +353,7 @@ data = {
             },
             {
                 "name": "Verde Cocina",
-                "description": "Vegan ve vejetaryen Meksika yemekleri üzerine uzmanlaşmış modern mekan.",
+                "description": "Vegan ve vejetaryen Meksika yemekleri üzerine uzmanlaşmış modern mekân.",
                 "address": "Bomonti Mah. No:25, Şişli, İstanbul",
                 "phone": "0212 296 33 44",
                 "price": "€€",
@@ -371,7 +371,7 @@ data = {
             },
             {
                 "name": "La Catrina",
-                "description": "Dia de los Muertos temalı dekorasyonu ve zengin Meksika mutfağıyla dikkat çeken mekan.",
+                "description": "Dia de los Muertos temalı dekorasyonu ve zengin Meksika mutfağıyla dikkat çeken mekân.",
                 "address": "Galata Mah. No:7, Beyoğlu, İstanbul",
                 "phone": "0212 243 99 00",
                 "price": "€€",
@@ -402,7 +402,7 @@ data = {
             },
             {
                 "name": "Mumbai Street Kitchen",
-                "description": "Mumbai'nin kalabalık sokaklarından ilham alan, canlı ve renkli sokak yemeği mekanı.",
+                "description": "Mumbai'nin kalabalık sokaklarından ilham alan, canlı ve renkli sokak yemeği mekânı.",
                 "address": "Kadıköy Mah. No:22, Kadıköy, İstanbul",
                 "phone": "0216 337 88 99",
                 "price": "€",
@@ -456,7 +456,7 @@ data = {
             },
             {
                 "name": "Kerala Backwaters",
-                "description": "Kerala kıyı mutfağının hindistan cevizi ve baharat ağırlıklı tariflerini sunan mekan.",
+                "description": "Kerala kıyı mutfağının hindistan cevizi ve baharat ağırlıklı tariflerini sunan mekân.",
                 "address": "Cihangir Mah. No:19, Beyoğlu, İstanbul",
                 "phone": "0212 293 11 00",
                 "price": "€€",
@@ -465,7 +465,7 @@ data = {
             },
             {
                 "name": "Punjab da Dhaba",
-                "description": "Punjab eyaletinin doyurucu ve yağlı Hint yolcu lokantası geleneğini yansıtan mekan.",
+                "description": "Punjab eyaletinin doyurucu ve yağlı Hint yolcu lokantası geleneğini yansıtan mekân.",
                 "address": "Kadıköy Çarşısı No:14, Kadıköy, İstanbul",
                 "phone": "0216 336 99 00",
                 "price": "€",
@@ -474,7 +474,7 @@ data = {
             },
             {
                 "name": "Goa Beach Bar & Grill",
-                "description": "Goa'nın tropikal havası ve deniz ürünleri ağırlıklı menüsüyle öne çıkan şık mekan.",
+                "description": "Goa'nın tropikal havası ve deniz ürünleri ağırlıklı menüsüyle öne çıkan şık mekân.",
                 "address": "Ortaköy Mah. No:5, Beşiktaş, İstanbul",
                 "phone": "0212 261 44 55",
                 "price": "€€€",
@@ -559,7 +559,7 @@ data = {
             },
             {
                 "name": "Chengdu Hot Pot",
-                "description": "Sichuan usulü ateşli hot pot kültürünü ailece deneyimlemenizi sağlayan büyük mekan.",
+                "description": "Sichuan usulü ateşli hot pot kültürünü ailece deneyimlemenizi sağlayan büyük mekân.",
                 "address": "Mecidiyeköy Mah. No:18, Şişli, İstanbul",
                 "phone": "0212 275 55 66",
                 "price": "€€",
@@ -598,7 +598,7 @@ data = {
                 "reviews": [(5, "Boeuf Bourguignon enfes!"), (4, "Samimi ve sıcak atmosfer.")]
             },
             {
-                "name": "Boulangerie Istanbul",
+                "name": "Boulangerie İstanbul",
                 "description": "Fransız unlu mamulleri ve pastacılığına adanmış butik fırın ve kafe.",
                 "address": "Nişantaşı Mah. No:8, Şişli, İstanbul",
                 "phone": "0212 231 99 00",
@@ -626,7 +626,7 @@ data = {
             },
             {
                 "name": "Alsace Winstub",
-                "description": "Alsace bölgesinin Alman-Fransız karışımı mutfağından ilham alan mekan.",
+                "description": "Alsace bölgesinin Alman-Fransız karışımı mutfağından ilham alan mekân.",
                 "address": "Bağdat Cad. No:88, Kadıköy, İstanbul",
                 "phone": "0216 356 44 55",
                 "price": "€€",
@@ -635,7 +635,7 @@ data = {
             },
             {
                 "name": "Maison Bretagne",
-                "description": "Brittany bölgesinin deniz ürünleri ve krepler üzerine uzmanlaşan mekan.",
+                "description": "Brittany bölgesinin deniz ürünleri ve krepler üzerine uzmanlaşan mekân.",
                 "address": "Moda Mah. No:12, Kadıköy, İstanbul",
                 "phone": "0216 418 88 99",
                 "price": "€€",
@@ -644,7 +644,7 @@ data = {
             },
             {
                 "name": "Burgundy Table",
-                "description": "Burgundy şarap bölgesinin mutfağını ve şarap kültürünü buluşturan gastronomi mekanı.",
+                "description": "Burgundy şarap bölgesinin mutfağını ve şarap kültürünü buluşturan gastronomi mekânı.",
                 "address": "Etiler Mah. No:33, Beşiktaş, İstanbul",
                 "phone": "0212 352 11 22",
                 "price": "€€€",
@@ -684,7 +684,7 @@ data = {
             },
             {
                 "name": "Texas BBQ House",
-                "description": "Texas usulü tütsülenmiş et ve barbekü kültürünü İstanbul'a taşıyan mekan.",
+                "description": "Texas usulü tütsülenmiş et ve barbekü kültürünü İstanbul'a taşıyan mekân.",
                 "address": "Levent Mah. No:44, Beşiktaş, İstanbul",
                 "phone": "0212 281 88 99",
                 "price": "€€€",
@@ -693,7 +693,7 @@ data = {
             },
             {
                 "name": "New York Deli",
-                "description": "NYC deli kültürünü yansıtan, dev sandviçler ve pastrami ile ünlü mekan.",
+                "description": "NYC deli kültürünü yansıtan, dev sandviçler ve pastrami ile ünlü mekân.",
                 "address": "Nişantaşı Mah. No:25, Şişli, İstanbul",
                 "phone": "0212 225 44 55",
                 "price": "€€",
@@ -702,7 +702,7 @@ data = {
             },
             {
                 "name": "Nashville Hot Chicken",
-                "description": "Nashville'in meşhur acılı tavuk kültürünü özgün tarifle sunan mekan.",
+                "description": "Nashville'in meşhur acılı tavuk kültürünü özgün tarifle sunan mekân.",
                 "address": "Bomonti Mah. No:31, Şişli, İstanbul",
                 "phone": "0212 296 11 22",
                 "price": "€",
@@ -720,7 +720,7 @@ data = {
             },
             {
                 "name": "Southern Comfort Kitchen",
-                "description": "ABD'nin güneyinin doyurucu comfort food kültürünü yansıtan sıcak mekan.",
+                "description": "ABD'nin güneyinin doyurucu comfort food kültürünü yansıtan sıcak mekân.",
                 "address": "Moda Mah. No:7, Kadıköy, İstanbul",
                 "phone": "0216 418 55 66",
                 "price": "€€",
@@ -756,12 +756,12 @@ data = {
             },
             {
                 "name": "San Francisco Brunch Club",
-                "description": "California usulü sağlıklı ve taze malzemeli brunch mekanı.",
+                "description": "California usulü sağlıklı ve taze malzemeli brunch mekânı.",
                 "address": "Bebek Mah. No:22, Beşiktaş, İstanbul",
                 "phone": "0212 265 99 00",
                 "price": "€€",
                 "menu": [("Avocado Toast & Poached Egg", 170), ("Eggs Benedict", 180), ("Acai Bowl", 150), ("Cold Brew Coffee", 80), ("Mimosa", 140)],
-                "reviews": [(4, "Hafta sonu brunch için harika bir mekan."), (5, "Avocado toast çok tazeydi.")]
+                "reviews": [(4, "Hafta sonu brunch için harika bir mekân."), (5, "Avocado toast çok tazeydi.")]
             },
         ]
     },
@@ -787,7 +787,7 @@ data = {
             },
             {
                 "name": "Thessaloniki Grill",
-                "description": "Kuzey Yunanistan'ın kebap ve ızgara kültürünü yansıtan samimi mekan.",
+                "description": "Kuzey Yunanistan'ın kebap ve ızgara kültürünü yansıtan samimi mekân.",
                 "address": "Kadıköy Mah. No:66, Kadıköy, İstanbul",
                 "phone": "0216 338 33 44",
                 "price": "€",
@@ -832,7 +832,7 @@ data = {
             },
             {
                 "name": "Corfu Garden",
-                "description": "Korfu adasının İtalyan-Yunan füzyon mutfağını sunan özgün mekan.",
+                "description": "Korfu adasının İtalyan-Yunan füzyon mutfağını sunan özgün mekân.",
                 "address": "Moda Mah. No:19, Kadıköy, İstanbul",
                 "phone": "0216 418 33 44",
                 "price": "€€",
@@ -863,7 +863,7 @@ data = {
         "restaurants": [
             {
                 "name": "Bangkok Street",
-                "description": "Bangkok sokak yemeklerinin canlı ve renkli dünyasını İstanbul'a taşıyan mekan.",
+                "description": "Bangkok sokak yemeklerinin canlı ve renkli dünyasını İstanbul'a taşıyan mekân.",
                 "address": "Kadıköy Mah. No:88, Kadıköy, İstanbul",
                 "phone": "0216 337 66 77",
                 "price": "€",
@@ -899,7 +899,7 @@ data = {
             },
             {
                 "name": "Isaan Grill",
-                "description": "Kuzeydoğu Tayland Isaan bölgesinin ızgara ve fermente lezzetlerine adanmış özgün mekan.",
+                "description": "Kuzeydoğu Tayland Isaan bölgesinin ızgara ve fermente lezzetlerine adanmış özgün mekân.",
                 "address": "Yeldeğirmeni Mah. No:25, Kadıköy, İstanbul",
                 "phone": "0216 449 88 99",
                 "price": "€€",
@@ -975,7 +975,7 @@ for cuisine_name, cuisine_data in data.items():
             Review.objects.create(stars=stars, comment=comment, restaurant=restaurant)
         created_count += 1
 
-print(f"\nToplam {created_count} restoran olusturuldu!")
+print(f"\nToplam {created_count} restoran oluşturuldu!")
 print(f"Kategoriler: {Category.objects.count()}")
-print(f"Menu Ogesi: {MenuItem.objects.count()}")
+print(f"Menü Öğesi: {MenuItem.objects.count()}")
 print(f"Yorum: {Review.objects.count()}")

@@ -45,19 +45,24 @@
 <p>{{ restaurant.description }}</p>
 <p><strong>Adres:</strong> {{ restaurant.address }}</p>
 <p><strong>Telefon:</strong> {{ restaurant.phone }}</p>
-<p><strong>Fiyat Araligi:</strong> {{ restaurant.price_range }}</p>
+<p><strong>Fiyat Aralığı:</strong> {{ restaurant.price_range }}</p>
 {% if restaurant.category %}
     <p><strong>Kategori:</strong> {{ restaurant.category.name }}</p>
 {% endif %}
 {% if restaurant.average_rating %}
     <p><strong>Ortalama Puan:</strong> {{ restaurant.average_rating }} / 5</p>
 {% else %}
-    <p>Henuz degerlendirme yapilmamis.</p>
+    <p>Henüz değerlendirme yapılmamış.</p>
 {% endif %}
 
 <hr>
 
-<h2>Çalışma Saatleri</h2>
+<div class="d-flex justify-content-between align-items-center">
+    <h2>Çalışma Saatleri</h2>
+    {% if user.is_authenticated and user == restaurant.creator and restaurant.status == 'approved' %}
+        <a href="{% url 'restaurants:opening_hours_manage' restaurant.pk %}" class="btn btn-outline-primary btn-sm">Saatleri Düzenle</a>
+    {% endif %}
+</div>
 {% if opening_hours %}
     <ul class="list-group mb-3">
         {% for hours in opening_hours %}
@@ -78,7 +83,7 @@
 <hr>
 
 <div class="d-flex justify-content-between align-items-center">
-    <h2>Menu</h2>
+    <h2>Menü</h2>
     {% if user.is_authenticated and user == restaurant.creator and restaurant.status == 'approved' %}
         <a href="{% url 'restaurants:menu_item_create' restaurant.pk %}" class="btn btn-success btn-sm">Menü Öğesi Ekle</a>
     {% endif %}
@@ -86,19 +91,32 @@
 {% if menu_items %}
     <ul class="list-group mt-3">
         {% for item in menu_items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item.name }} - {{ item.price }} TL</span>
-                {% if user.is_authenticated and user == restaurant.creator and restaurant.status == 'approved' %}
-                    <span>
-                        <a href="{% url 'restaurants:menu_item_update' item.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
-                        <a href="{% url 'restaurants:menu_item_delete' item.pk %}" class="btn btn-danger btn-sm">Sil</a>
-                    </span>
-                {% endif %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="me-3">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <strong>{{ item.name }}</strong>
+                        {% if item.category %}
+                            <span class="badge bg-secondary">{{ item.category }}</span>
+                        {% endif %}
+                    </div>
+                    {% if item.description %}
+                        <p class="mb-0 text-muted small">{{ item.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-column align-items-end gap-1">
+                    <span class="fw-bold">{{ item.price }} TL</span>
+                    {% if user.is_authenticated and user == restaurant.creator and restaurant.status == 'approved' %}
+                        <span>
+                            <a href="{% url 'restaurants:menu_item_update' item.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
+                            <a href="{% url 'restaurants:menu_item_delete' item.pk %}" class="btn btn-danger btn-sm">Sil</a>
+                        </span>
+                    {% endif %}
+                </div>
             </li>
         {% endfor %}
     </ul>
 {% else %}
-    <p>Henuz menu eklenmemis.</p>
+    <p>Henüz menü eklenmemiş.</p>
 {% endif %}
 
 <hr>
@@ -113,7 +131,17 @@
             <h5 class="card-title">Yorum Yap</h5>
             <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <div class="mb-3">
+                    <label for="id_stars" class="form-label d-block">{{ form.stars.label }}</label>
+                    <div data-star-rating data-input="id_stars" data-initial="{{ form.stars.value|default:0 }}"></div>
+                    {{ form.stars }}
+                    {% if form.stars.errors %}<div class="text-danger small mt-1">{{ form.stars.errors }}</div>{% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.comment.id_for_label }}" class="form-label">{{ form.comment.label }}</label>
+                    {{ form.comment }}
+                    {% if form.comment.errors %}<div class="text-danger small mt-1">{{ form.comment.errors }}</div>{% endif %}
+                </div>
                 <button type="submit" class="btn btn-primary btn-sm">Gönder</button>
             </form>
         </div>
@@ -129,7 +157,14 @@
         <div class="card mb-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
-                    <p class="mb-1"><strong>{{ review.user.username|default:"Anonim" }}</strong> - Puan: {{ review.stars }} / 5</p>
+                    <p class="mb-1">
+                        {% if review.user %}
+                            <a href="{% url 'restaurants:user_profile' review.user.username %}" class="text-decoration-none"><strong>{{ review.user.username }}</strong></a>
+                        {% else %}
+                            <strong>Anonim</strong>
+                        {% endif %}
+                        - Puan: {{ review.stars }} / 5
+                    </p>
                     {% if user.is_authenticated and user == review.user %}
                         <div>
                             <a href="{% url 'restaurants:review_update' review.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
@@ -145,7 +180,14 @@
                         {% for reply in review.replies.all %}
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between">
-                                    <p class="mb-1"><strong>{{ reply.user.username|default:"Anonim" }}</strong> cevapladı</p>
+                                    <p class="mb-1">
+                                        {% if reply.user %}
+                                            <a href="{% url 'restaurants:user_profile' reply.user.username %}" class="text-decoration-none"><strong>{{ reply.user.username }}</strong></a>
+                                        {% else %}
+                                            <strong>Anonim</strong>
+                                        {% endif %}
+                                        cevapladı
+                                    </p>
                                     {% if user.is_authenticated and user == reply.user %}
                                         <div>
                                             <a href="{% url 'restaurants:review_update' reply.pk %}" class="btn btn-warning btn-sm">Düzenle</a>
@@ -171,10 +213,10 @@
         </div>
     {% endfor %}
 {% else %}
-    <p>Henuz yorum yapilmamis.</p>
+    <p>Henüz yorum yapılmamış.</p>
 {% endif %}
 
 <br>
-<a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-secondary">Geri Don</a>
+<a href="{% url 'restaurants:restaurant_list' %}" class="btn btn-secondary">Geri Dön</a>
 
 {% endblock %}

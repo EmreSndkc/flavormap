@@ -1,0 +1,27 @@
+/* FlavorMap - Yıldız puanlama widget stilleri */
+.fm-star-widget {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+}
+
+.fm-star-widget .fm-star {
+    font-size: 1.75rem;
+    line-height: 1;
+    color: #d0d0d0;
+    transition: color 0.15s ease-in-out, transform 0.1s ease-in-out;
+    margin-right: 2px;
+}
+
+.fm-star-widget .fm-star.active {
+    color: #f5b301;
+}
+
+.fm-star-widget .fm-star:hover {
+    transform: scale(1.1);
+}
+
+.fm-star-widget .fm-star-label {
+    font-size: 0.9rem;
+}

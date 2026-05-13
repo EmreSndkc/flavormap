@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Restaurant, MenuItem, Review, OpeningHours
+from .models import Category, Restaurant, MenuItem, Review, OpeningHours, ContactMessage
 
 
 @admin.register(Category)
@@ -36,9 +36,9 @@ class RestaurantAdmin(admin.ModelAdmin):
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'restaurant']
-    search_fields = ['name', 'restaurant__name']
-    list_filter = ['restaurant']
+    list_display = ['name', 'category', 'price', 'restaurant']
+    search_fields = ['name', 'description', 'category', 'restaurant__name']
+    list_filter = ['restaurant', 'category']
 
 
 @admin.register(Review)
@@ -53,3 +53,13 @@ class OpeningHoursAdmin(admin.ModelAdmin):
     list_display = ['restaurant', 'day_of_week', 'open_time', 'close_time', 'is_closed']
     list_filter = ['day_of_week', 'is_closed']
     search_fields = ['restaurant__name']
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email', 'created_at', 'is_read']
+    list_filter = ['is_read', 'created_at']
+    search_fields = ['name', 'email', 'message']
+    list_editable = ['is_read']
+    readonly_fields = ['name', 'email', 'message', 'created_at']
+    ordering = ['-created_at']
