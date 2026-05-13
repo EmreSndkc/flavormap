@@ -65,7 +65,3 @@ flavormap/
 ├── seed_data.py    # Sample data script
 └── manage.py
 ```
-
-## Note
-
-This project was developed for academic purposes as part of the CSE 220 Web Programming course.
