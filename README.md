@@ -23,7 +23,7 @@ FlavorMap is a Django-based web application for restaurant discovery and reviews
 ## Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/EmreSndkc/flavormap.git
 cd flavormap
 
 python3 -m venv venv
